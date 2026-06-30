@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# astrodata-mcp output spill dir (if created inside repo)
+astrodata_mcp_out/
+*.parquet
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
