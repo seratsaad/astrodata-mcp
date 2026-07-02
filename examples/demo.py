@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""A 30-second live demo of the astrodata-mcp tools.
+"""A short live example of the astrodata-mcp tools.
 
 Runs the canonical "resolve a target, then pull nearby Gaia and Keck data"
-flow directly against the real archives and prints a compact result. This is
-the sequence an AI client performs when asked in natural language; running it
-here makes it easy to screen-record (see docs/DEMO.md).
+flow directly against the real archives and prints a compact result -- the same
+sequence an AI client performs when asked in natural language.
 
     python examples/demo.py            # default target: HD 122563
     python examples/demo.py "Vega"

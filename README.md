@@ -48,12 +48,6 @@ Large results are capped inline and spilled to a Parquet file (path returned).
 Requires Python 3.11+.
 
 ```bash
-pip install astrodata-mcp        # once published to PyPI
-```
-
-Or from source:
-
-```bash
 git clone https://github.com/seratsaad/astrodata-mcp
 cd astrodata-mcp
 python3.11 -m venv .venv && source .venv/bin/activate
@@ -84,7 +78,7 @@ Ask your AI client in natural language; it picks the tools. For example:
 > "Resolve HD 122563, then show nearby Gaia DR3 and any Keck HIRES data."
 
 Try it without a client: `python examples/demo.py` runs that exact flow against
-the live archives (see [`docs/DEMO.md`](docs/DEMO.md) for recording a demo).
+the live archives.
 
 The client calls `simbad_resolve` for coordinates, then `crossmatch` and
 `koa_query` at that position. Common patterns the tools map to:
