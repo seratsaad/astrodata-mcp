@@ -4,6 +4,21 @@ version = "0.1.0"
 description = "MCP server for querying public astronomical archives (ESO, Gaia, SIMBAD, VizieR, Keck KOA, Magellan)"
 readme = "README.md"
 requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "seratsaad", email = "seratmahmudsaad@gmail.com" }]
+keywords = [
+    "mcp", "model-context-protocol", "astronomy", "archive", "tap", "vo",
+    "astroquery", "eso", "gaia", "simbad", "vizier", "keck", "spectroscopy",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Astronomy",
+]
 dependencies = [
     "mcp>=1.2.0",
     "astroquery>=0.4.7",
@@ -12,6 +27,14 @@ dependencies = [
     "pandas>=2.0",
     "pyarrow>=15.0",
 ]
+
+[project.optional-dependencies]
+dev = ["hypothesis>=6.0"]
+
+[project.urls]
+Homepage = "https://github.com/seratsaad/astrodata-mcp"
+Repository = "https://github.com/seratsaad/astrodata-mcp"
+Issues = "https://github.com/seratsaad/astrodata-mcp/issues"
 
 [project.scripts]
 astrodata-mcp = "astrodata_mcp.server:main"

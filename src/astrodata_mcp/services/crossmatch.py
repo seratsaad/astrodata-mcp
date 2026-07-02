@@ -3,15 +3,18 @@ from __future__ import annotations
 
 from ..core.adql import bbox_clause, cone_clause
 from ..core.config import ENDPOINTS, GES_TABLE
-from ..core.results import format_result
-from ..core.tap import run_adql
+from ..core.query import tap_query
 from .simbad import simbad_resolve
 
 
 def crossmatch(ra: float, dec: float, radius_arcsec: float = 5.0) -> dict:
     """Positional crossmatch a sky point against SIMBAD, Gaia DR3, and GES.
 
-    Returns the nearest match in each service within the given radius.
+    Returns the nearest match in each service within the given radius. Each
+    sub-result carries its own provenance (endpoint + ADQL) and citation.
+    Note: the Gaia positions are at epoch J2016.0; for a high-proper-motion
+    star the SIMBAD (ICRS/J2000) and Gaia positions differ -- compare
+    `gaia_dr3` pmra/pmdec before trusting a tight match.
     """
     out: dict = {"query": {"ra": ra, "dec": dec, "radius_arcsec": radius_arcsec}}
 
@@ -20,22 +23,29 @@ def crossmatch(ra: float, dec: float, radius_arcsec: float = 5.0) -> dict:
         "SELECT TOP 1 main_id, ra, dec, otype_txt, sp_type FROM basic "
         f"WHERE {cone_clause(ra, dec, radius_arcsec)}"
     )
-    out["simbad"] = format_result(run_adql(ENDPOINTS["simbad"], simbad_q), label="xm_simbad")
+    out["simbad"] = tap_query(
+        ENDPOINTS["simbad"], simbad_q, label="xm_simbad", source="SIMBAD"
+    )
 
-    # Gaia DR3
+    # Gaia DR3 (positions at J2016.0; include PM for epoch reasoning)
     gaia_q = (
-        "SELECT TOP 1 source_id, ra, dec, parallax, pmra, pmdec, phot_g_mean_mag "
-        "FROM gaiadr3.gaia_source "
+        "SELECT TOP 1 source_id, ra, dec, ref_epoch, parallax, pmra, pmdec, "
+        "phot_g_mean_mag FROM gaiadr3.gaia_source "
         f"WHERE {cone_clause(ra, dec, radius_arcsec)}"
     )
-    out["gaia_dr3"] = format_result(run_adql(ENDPOINTS["gaia"], gaia_q), label="xm_gaia")
+    out["gaia_dr3"] = tap_query(
+        ENDPOINTS["gaia"], gaia_q, label="xm_gaia", source="Gaia"
+    )
+    out["gaia_dr3"]["epoch"] = "J2016.0"
 
     # GES: bounding box (tap_cat geometry support is not assumed)
     ges_q = (
         f"SELECT TOP 5 OBJECT, RA, DECLINATION, TEFF, LOGG, FEH FROM {GES_TABLE} "
         f"WHERE {bbox_clause(ra, dec, radius_arcsec, 'RA', 'DECLINATION')}"
     )
-    out["ges"] = format_result(run_adql(ENDPOINTS["eso_cat"], ges_q), label="xm_ges")
+    out["ges"] = tap_query(
+        ENDPOINTS["eso_cat"], ges_q, label="xm_ges", source="ESO"
+    )
 
     return out
 

@@ -28,11 +28,16 @@ cluttering the general core.
 
 ## 2. Current best version (what to run)
 
-18 core tools (always on) + 5 opt-in extras (23 total), all read-only,
-registered in `src/astrodata_mcp/server.py`. Live smoke suite is 22/22 passing
-(`tests/test_smoke.py`) plus 13 offline unit tests with no network: 3 retry
-(`tests/test_tap_retry.py`) + 6 ADQL builder / quote-safety
-(`tests/test_adql.py`) + 4 input validation (`tests/test_validation.py`).
+19 core tools (always on) + 5 opt-in extras (24 total), all read-only,
+registered in `src/astrodata_mcp/server.py`. Live smoke suite is 22 passing
+(`tests/test_smoke.py`) plus 22 offline unit tests with no network: 6 ADQL /
+quote-safety (`test_adql`) + 3 retry (`test_tap_retry`) + 4 input validation
+(`test_validation`) + 3 epoch/PM (`test_epoch`) + 4 property-based
+(`test_properties`, hypothesis) + 2 VOTable parsing (`test_parsing`).
+
+Every result carries a `provenance` block (endpoint + exact ADQL) and a
+`citation` (the archive acknowledgement string); see core/citations.py and
+core/query.py. Gaia results include their J2016.0 `epoch`.
 
 Core (always registered):
 | Group | Tools |
@@ -45,6 +50,7 @@ Core (always registered):
 | VizieR | `vizier_find_catalogs`, `vizier_query` |
 | Magellan | `magellan_find_catalogs`, `magellan_cone_search` (VizieR-backed) |
 | Cross-service | `crossmatch`, `resolve_and_enrich` |
+| Epoch | `propagate_position` (proper-motion propagation between epochs) |
 
 Extras (only with `ASTRODATA_MCP_EXTRAS=1`, defined in `extras.py`):
 | Group | Tools |
@@ -77,8 +83,11 @@ src/astrodata_mcp/
   extras.py            # opt-in domain tools (ASTRODATA_MCP_EXTRAS=1) -> register(mcp)
   core/
     tap.py             # shared pyvo TAP client: cache + retry/backoff (TAPQueryError)
+    query.py           # tap_query: run_adql + format_result + provenance + citation
     adql.py            # cone_clause / bbox_clause / quote (shared ADQL helpers)
-    results.py         # context-safe: cap rows inline, spill big tables to parquet
+    results.py         # context-safe rows + provenance/citation attach
+    citations.py       # canonical archive acknowledgement strings
+    epoch.py           # proper-motion / epoch propagation (astropy)
     schema.py          # TAP_SCHEMA introspection (list_columns / list_tables)
     config.py          # ENDPOINTS map + KOA / ESO-secondary instrument tables
   services/
@@ -90,10 +99,15 @@ src/astrodata_mcp/
     eso_secondary.py   # HARPS / ESPRESSO / UVES via the main ESO endpoint
     magellan_archive.py# VizieR-backed published-catalog path (no raw archive)
     external.py        # extras backend: crossmatch_external_sb2 / find_followup_targets
-tests/test_smoke.py    # live tests (22/22 pass)
-tests/test_tap_retry.py # offline retry/backoff unit tests (3)
-tests/test_adql.py      # offline ADQL builder + quote-safety tests (6)
-tests/test_validation.py # offline allow-list / input-validation tests (4)
+tests/test_smoke.py       # live tests (22)
+tests/test_tap_retry.py   # offline retry/backoff (3)
+tests/test_adql.py        # offline ADQL builder + quote-safety (6)
+tests/test_validation.py  # offline allow-list / input-validation (4)
+tests/test_epoch.py       # offline proper-motion propagation (3)
+tests/test_properties.py  # offline hypothesis property tests (4)
+tests/test_parsing.py     # offline VOTable parsing via recorded fixture (2)
+tests/fixtures/gaia_cone.vot  # recorded VOTable response for parsing tests
+examples/demo.py          # runnable 30-second live demo
 ```
 
 The pattern for every service: build an ADQL string, call

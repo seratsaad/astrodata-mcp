@@ -30,11 +30,28 @@ agent) can call. Public data only, no credentials needed.
 | VizieR | `vizier_find_catalogs`, `vizier_query` |
 | Magellan | `magellan_find_catalogs`, `magellan_cone_search` |
 | Cross-service | `crossmatch`, `resolve_and_enrich` |
+| Epoch | `propagate_position` (proper-motion between epochs) |
 
-All tools are read-only. Large results are capped inline and spilled to a
-Parquet file (path returned).
+All tools are read-only. Every result carries:
+
+- **provenance** — the exact endpoint and ADQL used, so the answer is
+  reproducible by hand;
+- **citation** — the archive's required acknowledgement string, ready to paste
+  into a paper (VizieR results also point to the source-paper bibcode).
+
+Gaia positions are returned at their J2016.0 epoch; use `propagate_position`
+before cross-matching high-proper-motion stars against other-epoch catalogues.
+Large results are capped inline and spilled to a Parquet file (path returned).
 
 ## Install
+
+Requires Python 3.11+.
+
+```bash
+pip install astrodata-mcp        # once published to PyPI
+```
+
+Or from source:
 
 ```bash
 git clone https://github.com/seratsaad/astrodata-mcp
@@ -42,8 +59,6 @@ cd astrodata-mcp
 python3.11 -m venv .venv && source .venv/bin/activate
 pip install -e .
 ```
-
-Requires Python 3.11+.
 
 ## Connect an MCP client
 
@@ -67,6 +82,9 @@ Restart the client; the tools appear (in Claude they are named
 Ask your AI client in natural language; it picks the tools. For example:
 
 > "Resolve HD 122563, then show nearby Gaia DR3 and any Keck HIRES data."
+
+Try it without a client: `python examples/demo.py` runs that exact flow against
+the live archives (see [`docs/DEMO.md`](docs/DEMO.md) for recording a demo).
 
 The client calls `simbad_resolve` for coordinates, then `crossmatch` and
 `koa_query` at that position. Common patterns the tools map to:

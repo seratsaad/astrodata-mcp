@@ -1,0 +1,26 @@
+name: live archives
+
+# Runs the live smoke suite against the real archives (ESO, Gaia, SIMBAD,
+# VizieR, Keck KOA) on a schedule, so an upstream schema or endpoint change is
+# caught here before it reaches users. Also runnable on demand.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # every Monday 06:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  smoke:
+    name: live smoke tests
+    runs-on: ubuntu-latest
+    # These hit third-party services; a failure is a signal, not necessarily a
+    # code bug. Do not block anything on it.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install -e .
+      - name: Live smoke tests
+        run: python tests/test_smoke.py

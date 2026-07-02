@@ -2,8 +2,7 @@
 from __future__ import annotations
 
 from ..core.config import ENDPOINTS
-from ..core.results import format_result
-from ..core.tap import run_adql
+from ..core.query import tap_query
 
 
 def simbad_resolve(name: str) -> dict:
@@ -18,9 +17,9 @@ def simbad_resolve(name: str) -> dict:
         "FROM basic AS b JOIN ident AS i ON b.oid = i.oidref "
         f"WHERE i.id = '{safe}'"
     )
-    return format_result(run_adql(ENDPOINTS["simbad"], query), label="simbad_resolve")
+    return tap_query(ENDPOINTS["simbad"], query, label="simbad_resolve", source="SIMBAD")
 
 
 def simbad_adql(query: str) -> dict:
     """Run an arbitrary ADQL query against the SIMBAD TAP service."""
-    return format_result(run_adql(ENDPOINTS["simbad"], query), label="simbad_adql")
+    return tap_query(ENDPOINTS["simbad"], query, label="simbad_adql", source="SIMBAD")

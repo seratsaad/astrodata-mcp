@@ -10,8 +10,9 @@ import statistics
 import pandas as pd
 
 from ..core.adql import bbox_clause, quote
+from ..core.citations import CITATIONS
 from ..core.config import ENDPOINTS, GES_TABLE
-from ..core.results import format_result
+from ..core.query import tap_query
 from ..core.tap import run_adql
 
 # Representative element spread (common -> rare) for completeness reporting.
@@ -45,7 +46,7 @@ def find_raw_frames(
         f"FROM dbo.raw WHERE {' AND '.join(where)} "
         "GROUP BY instrument, dp_cat ORDER BY gb DESC"
     )
-    res = format_result(run_adql(ENDPOINTS["eso_obs"], query), label="find_raw_frames")
+    res = tap_query(ENDPOINTS["eso_obs"], query, label="find_raw_frames", source="ESO")
     res["note"] = (
         "Sizes cover the listed category only. Associated raw calibrations are "
         "tagged to separate calibration programs and add roughly 2-4x more "
@@ -77,6 +78,8 @@ def ges_completeness(
             "n": n,
             "pct": round(100.0 * n / total, 1) if total else None,
         }
+    out["provenance"] = {"endpoint": ENDPOINTS["eso_cat"], "adql": query}
+    out["citation"] = CITATIONS["ESO"]
     return out
 
 
@@ -140,4 +143,9 @@ def validate_against_ges(
         "matched": n_matched,
         "radius_arcsec": radius_arcsec,
         "residuals": stats,
+        "provenance": {
+            "endpoint": ENDPOINTS["eso_cat"],
+            "note": f"one bounding-box match per input row against {GES_TABLE}",
+        },
+        "citation": CITATIONS["ESO"],
     }

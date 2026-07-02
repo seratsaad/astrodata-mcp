@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Produced with astropy.io.votable version 8.0.0
+     http://www.astropy.org/ -->
+<VOTABLE version="1.4" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://www.ivoa.net/xml/VOTable/VOTable-1.4.xsd">
+ <RESOURCE type="results">
+  <TABLE>
+   <FIELD ID="source_id" datatype="long" name="source_id"/>
+   <FIELD ID="ra" datatype="double" name="ra"/>
+   <FIELD ID="dec" datatype="double" name="dec"/>
+   <FIELD ID="ref_epoch" datatype="double" name="ref_epoch"/>
+   <FIELD ID="parallax" datatype="double" name="parallax"/>
+   <FIELD ID="pmra" datatype="double" name="pmra"/>
+   <FIELD ID="pmdec" datatype="double" name="pmdec"/>
+   <FIELD ID="phot_g_mean_mag" datatype="double" name="phot_g_mean_mag"/>
+   <FIELD ID="radial_velocity" datatype="double" name="radial_velocity"/>
+   <DATA>
+    <TABLEDATA>
+     <TR>
+      <TD>4472832130942575872</TD>
+      <TD>269.4520769</TD>
+      <TD>4.6933489</TD>
+      <TD>2016</TD>
+      <TD>546.976</TD>
+      <TD>-801.551</TD>
+      <TD>10362.394</TD>
+      <TD>8.19</TD>
+      <TD>-110.5</TD>
+     </TR>
+     <TR>
+      <TD>2947050466531873024</TD>
+      <TD>101.2871542</TD>
+      <TD>-16.7161167</TD>
+      <TD>2016</TD>
+      <TD/>
+      <TD>-3.2</TD>
+      <TD>1.9</TD>
+      <TD>NaN</TD>
+      <TD>NaN</TD>
+     </TR>
+    </TABLEDATA>
+   </DATA>
+  </TABLE>
+ </RESOURCE>
+</VOTABLE>

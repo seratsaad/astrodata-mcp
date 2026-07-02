@@ -15,8 +15,7 @@ from __future__ import annotations
 
 from ..core.adql import bbox_clause, cone_clause, quote
 from ..core.config import ENDPOINTS, ESO_SECONDARY_INSTRUMENTS
-from ..core.results import format_result
-from ..core.tap import run_adql
+from ..core.query import tap_query
 
 
 def _check_instrument(instrument: str) -> str:
@@ -76,7 +75,7 @@ def eso_secondary_query(
             f"data_type must be 'reduced' or 'raw', got {data_type!r}"
         )
 
-    res = format_result(run_adql(ENDPOINTS["eso_obs"], query), label="eso_secondary")
+    res = tap_query(ENDPOINTS["eso_obs"], query, label="eso_secondary", source="ESO")
     res["instrument"] = inst
     res["data_type"] = data_type
     res["archive"] = "ESO"

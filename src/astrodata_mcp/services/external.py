@@ -13,8 +13,9 @@ These are registered only when ASTRODATA_MCP_EXTRAS is set; see extras.py.
 from __future__ import annotations
 
 from ..core.adql import cone_clause
+from ..core.citations import CITATIONS
 from ..core.config import ENDPOINTS, ESO_SECONDARY_INSTRUMENTS
-from ..core.results import format_result
+from ..core.query import tap_query
 from ..core.tap import run_adql
 from .keck_koa import koa_query
 
@@ -29,7 +30,7 @@ def _eso_secondary_hits(ra: float, dec: float, radius_arcsec: float, limit: int 
         "AND dataproduct_type = 'spectrum' "
         f"AND {cone_clause(ra, dec, radius_arcsec, 's_ra', 's_dec')}"
     )
-    return format_result(run_adql(ENDPOINTS["eso_obs"], query), label="ext_eso")
+    return tap_query(ENDPOINTS["eso_obs"], query, label="ext_eso", source="ESO")
 
 
 def crossmatch_external_sb2(
@@ -121,4 +122,6 @@ def find_followup_targets(
             "within 3 arcsec. 'max_targets' caps the Gaia pull (and the per-"
             "target archive checks); raise it for a wider sweep."
         ),
+        "provenance": {"endpoint": ENDPOINTS["gaia"], "adql": gaia_q},
+        "citation": [CITATIONS["Gaia"], CITATIONS["KOA"], CITATIONS["ESO"]],
     }

@@ -6,6 +6,7 @@ from typing import Any
 import numpy as np
 from astropy.table import Table
 
+from .citations import citation_for
 from .config import DEFAULT_MAX_ROWS_INLINE, OUTPUT_DIR
 
 
@@ -36,11 +37,18 @@ def format_result(
     table: Table,
     max_rows: int = DEFAULT_MAX_ROWS_INLINE,
     label: str = "result",
+    *,
+    source: str | None = None,
+    adql: str | None = None,
+    endpoint: str | None = None,
 ) -> dict:
     """Return a context-safe summary of a query result.
 
     Small results are returned inline. Large results spill to a parquet file
     and only a preview + path are returned.
+
+    `source` attaches the archive's required citation. `adql` + `endpoint`
+    attach a provenance block so every answer is reproducible by hand.
     """
     n = len(table)
     out: dict = {"n_rows": n, "columns": list(table.colnames)}
@@ -58,4 +66,9 @@ def format_result(
         out["rows"] = _rows(table, max_rows)
         out["truncated"] = True
         out["note"] = f"Showing first {max_rows} of {n} rows; full table saved to disk."
+    if adql is not None or endpoint is not None:
+        out["provenance"] = {"endpoint": endpoint, "adql": adql}
+    citation = citation_for(source)
+    if citation is not None:
+        out["citation"] = citation
     return out

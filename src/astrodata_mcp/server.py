@@ -14,6 +14,7 @@ import os
 
 from mcp.server.fastmcp import FastMCP
 
+from .core import epoch
 from .services import crossmatch as xm
 from .services import (
     eso,
@@ -211,6 +212,24 @@ def resolve_and_enrich(name: str, radius_arcsec: float = 5.0) -> dict:
     """Resolve an object name via SIMBAD, then enrich with Gaia DR3 (and
     Gaia-ESO catalogue) matches at its position."""
     return xm.resolve_and_enrich(name, radius_arcsec)
+
+
+# --- Epoch / proper motion -------------------------------------------------
+@mcp.tool()
+def propagate_position(
+    ra: float, dec: float, pmra: float, pmdec: float,
+    from_epoch: float, to_epoch: float,
+    parallax: float | None = None, radial_velocity: float | None = None,
+) -> dict:
+    """Propagate a sky position by proper motion between two epochs (Julian
+    years, e.g. Gaia DR3 = 2016.0, legacy catalogues = 2000.0). `pmra` is
+    pm_ra*cos(dec) and `pmdec` in mas/yr; optional parallax (mas) and
+    radial_velocity (km/s) enable a 3D treatment. Returns the new ra/dec and the
+    total angular shift. Use before cross-matching high-proper-motion stars
+    across catalogues of different epochs."""
+    return epoch.propagate(
+        ra, dec, pmra, pmdec, from_epoch, to_epoch, parallax, radial_velocity
+    )
 
 
 # --- ESO programs ----------------------------------------------------------

@@ -12,9 +12,9 @@ from __future__ import annotations
 
 from ..core.adql import cone_clause, quote
 from ..core.config import ENDPOINTS, KOA_INSTRUMENT_TABLES
+from ..core.query import tap_query
 from ..core.results import format_result
 from ..core.schema import list_columns
-from ..core.tap import run_adql
 
 # Core, instrument-agnostic columns present in every koa_* table.
 _KOA_COLS = (
@@ -70,7 +70,7 @@ def koa_query(
         f"SELECT TOP {limit} {_KOA_COLS} FROM {table} "
         f"WHERE {clause} ORDER BY date_obs DESC"
     )
-    res = format_result(run_adql(ENDPOINTS["koa"], query), label="koa")
+    res = tap_query(ENDPOINTS["koa"], query, label="koa", source="KOA")
     res["instrument"] = instrument.upper()
     res["archive"] = "Keck KOA"
     return res
@@ -80,5 +80,6 @@ def koa_schema(instrument: str = "HIRES") -> dict:
     """List the full column set of a KOA instrument table (FITS-header wide)."""
     table = _resolve_table(instrument)
     return format_result(
-        list_columns(ENDPOINTS["koa"], table), max_rows=2000, label="koa_schema"
+        list_columns(ENDPOINTS["koa"], table), max_rows=2000, label="koa_schema",
+        source="KOA", endpoint=ENDPOINTS["koa"],
     )

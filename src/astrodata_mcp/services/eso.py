@@ -3,9 +3,9 @@ from __future__ import annotations
 
 from ..core.adql import bbox_clause, cone_clause, quote
 from ..core.config import ENDPOINTS, GES_TABLE
+from ..core.query import tap_query
 from ..core.results import format_result
 from ..core.schema import list_columns
-from ..core.tap import run_adql
 
 
 def eso_raw_query(
@@ -44,7 +44,7 @@ def eso_raw_query(
         "exposure, tpl_start, dp_cat, access_estsize "
         f"FROM dbo.raw WHERE {clause} ORDER BY tpl_start DESC"
     )
-    return format_result(run_adql(ENDPOINTS["eso_obs"], query), label="eso_raw")
+    return tap_query(ENDPOINTS["eso_obs"], query, label="eso_raw", source="ESO")
 
 
 def eso_phase3_query(
@@ -70,7 +70,7 @@ def eso_phase3_query(
         "s_ra, s_dec, em_min, em_max, access_url "
         f"FROM ivoa.ObsCore WHERE {clause}"
     )
-    return format_result(run_adql(ENDPOINTS["eso_obs"], query), label="eso_phase3")
+    return tap_query(ENDPOINTS["eso_obs"], query, label="eso_phase3", source="ESO")
 
 
 def ges_query(adql: str | None = None, limit: int = 50) -> dict:
@@ -79,10 +79,13 @@ def ges_query(adql: str | None = None, limit: int = 50) -> dict:
     Pass a full ADQL string, or omit it for a preview of the table.
     """
     query = adql or f"SELECT TOP {limit} * FROM {GES_TABLE}"
-    return format_result(run_adql(ENDPOINTS["eso_cat"], query), label="ges")
+    return tap_query(ENDPOINTS["eso_cat"], query, label="ges", source="ESO")
 
 
 def eso_schema(table: str, service: str = "obs") -> dict:
     """List columns of an ESO table. service: 'obs' (tap_obs) or 'cat' (tap_cat)."""
     endpoint = ENDPOINTS["eso_cat"] if service == "cat" else ENDPOINTS["eso_obs"]
-    return format_result(list_columns(endpoint, table), max_rows=500, label="eso_schema")
+    return format_result(
+        list_columns(endpoint, table), max_rows=500, label="eso_schema",
+        source="ESO", endpoint=endpoint,
+    )
